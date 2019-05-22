@@ -2,18 +2,16 @@ import React, { Component } from 'react'
 import { Jumbotron, Container, Row } from 'reactstrap';
 import '../Burgerboard/Burgerboard.css';
 import superagent from 'superagent';
+import axios from 'axios';
 
 export default class Burgerboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      burgers: {
-        name: '',
-        eaten: false
-      },
+      available: [],
       eaten: []
     }
-    // this.eat = this.eat.bind(this);
+    this.eat = this.eat.bind(this);
     this.create = this.create.bind(this);
     this.acceptBurgerName = this.acceptBurgerName.bind(this);
   };
@@ -32,13 +30,48 @@ export default class Burgerboard extends Component {
     superagent
       .post('/create')
       .send({
-        name: "test",
-        eaten: true
+        name: this.refs.name.value,
+        eaten: false
       })
       .end((err, res) => {
         console.log(res)
     });
     this.refs.name.value = '';
+  };
+  eat = e => {
+    e.preventDefault();
+    console.log("Yum, that was good.");
+    let id = e.target.value;
+    axios.put('/eat/' + id)
+    .then(res => {
+      console.log(res);
+      this.componentDidMount();
+    })
+  };
+  delete = e => {
+    e.preventDefault();
+    console.log('So long burger');
+    let id = e.target.value;
+    axios.delete('/remove/' + id)
+    .then(res => {
+      console.log(res);
+      this.componentDidMount();
+    })
+  }
+  componentDidMount() {
+    axios.get('/get-burgers')
+    .then(res => {
+      this.setState({
+        available: res.data
+      })
+    })
+    axios.get('/get-eaten-burgers')
+    .then(res => {
+      this.setState({
+        eaten: res.data
+      })
+    })
+    console.log(this.state);
   };
 
   render() {
@@ -70,11 +103,26 @@ export default class Burgerboard extends Component {
             <div className='col-md-1'></div>
             <div className='col-md-4'>
                 <h6>Burgers Available</h6> 
+                <hr/>
+                {this.state.available.map((d, i) => (
+                  <div key={d.id}>
+                    <h6>{d.name}</h6>
+                    <button value={d.id} onClick={this.eat}>EAT!</button>
+                  </div>
+                  
+                ))}
             </div>
             <div className='col-md-2'></div>
 
             <div className='col-md-4'>
                 <h6>Eaten Burgers</h6>
+                <hr/>
+                {this.state.eaten.map((d, i) => (
+                  <div key={d.id}>
+                    <h6>{d.name}</h6>
+                    <button value={d.id} onClick={this.delete}>Remove from the Board</button>
+                  </div>
+                ))}
             </div>
             <div className='col-md-1'></div>
         </div>
