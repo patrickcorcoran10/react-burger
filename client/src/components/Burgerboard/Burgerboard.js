@@ -14,6 +14,7 @@ export default class Burgerboard extends Component {
     this.eat = this.eat.bind(this);
     this.create = this.create.bind(this);
     this.acceptBurgerName = this.acceptBurgerName.bind(this);
+    this.getStuff = this.getStuff.bind(this);
   };
   acceptBurgerName = e => {
     console.log(this.state)
@@ -37,6 +38,7 @@ export default class Burgerboard extends Component {
         console.log(res)
     });
     this.refs.name.value = '';
+    this.componentDidMount();
   };
   eat = e => {
     e.preventDefault();
@@ -58,20 +60,35 @@ export default class Burgerboard extends Component {
       this.componentDidMount();
     })
   }
+  async getStuff() {
+    try {
+      const stuff = await axios.get('/get-burgers')
+      const responseJSON = await stuff.data;
+      this.setState({ available: responseJSON }) 
+      console.log(this.state);
+    }
+    catch (error) {
+      console.log("We had an error", error)
+    };
+    try {
+      const eaten = await axios.get('/get-eaten-burgers');
+      const responseJSON = await eaten.data;
+      this.setState({ eaten: responseJSON })
+    }
+    catch (error) {
+      console.log('We had an error in the eaten get', error)
+    }
+    // 
+    // axios.get('/get-eaten-burgers')
+    // .then(res => {
+    //   this.setState({
+    //     eaten: res.data
+    //   })
+    // })
+    // console.log(this.state);
+  }
   componentDidMount() {
-    axios.get('/get-burgers')
-    .then(res => {
-      this.setState({
-        available: res.data
-      })
-    })
-    axios.get('/get-eaten-burgers')
-    .then(res => {
-      this.setState({
-        eaten: res.data
-      })
-    })
-    console.log(this.state);
+    this.getStuff();
   };
 
   render() {
@@ -99,7 +116,7 @@ export default class Burgerboard extends Component {
             <div className='col-md-4'>
             </div>
         </Row>
-        <div className='row'>
+        <div className='row' id='list'>
             <div className='col-md-1'></div>
             <div className='col-md-4'>
                 <h6>Burgers Available</h6> 

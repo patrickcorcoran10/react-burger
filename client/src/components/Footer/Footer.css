@@ -1,0 +1,18 @@
+.footer {
+    min-height: 60px;
+    background: #E5E5E5;
+    position: relative;
+  }
+  
+  .footer span {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 50px;
+    background: #B8B8B8;
+    text-align: center;
+    font-family: 'Julius Sans One', sans-serif;
+    margin-bottom: 0;
+  }
+  
